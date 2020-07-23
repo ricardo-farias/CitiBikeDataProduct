@@ -1,0 +1,133 @@
+{
+  "type" : "struct",
+  "fields" : [
+    {
+      "name": "tripduration",
+      "type": "integer",
+      "nullable": false,
+      "metadata": {
+        "name": "tripduration"
+      }
+    },
+    {
+      "name": "starttime",
+      "type": "timestamp",
+      "nullable": false,
+      "metadata": {
+        "name": "starttime"
+      }
+    },
+    {
+      "name": "stoptime",
+      "type": "timestamp",
+      "nullable": true,
+      "metadata": {
+        "name": "stoptime"
+      }
+    },
+    {
+      "name": "startsstationid",
+      "type": "integer",
+      "nullable": true,
+      "metadata": {
+        "name": "startstationid"
+      }
+    },
+    {
+      "name": "startstationname",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "name": "startstationname"
+      }
+    },
+    {
+      "name": "startstationlatitude",
+      "type": "double",
+      "nullable": true,
+      "metadata": {
+        "name": "startstationlatitude"
+      }
+    },
+    {
+      "name": "startstationlongitude",
+      "type": "double",
+      "nullable": true,
+      "metadata": {
+        "name": "startstationlongitude"
+      }
+    },
+    {
+      "name": "endstationid",
+      "type": "integer",
+      "nullable": true,
+      "metadata": {
+        "name": "endstationid"
+      }
+    },
+    {
+      "name": "endstationname",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "name": "endstationname"
+      }
+    },
+    {
+      "name": "endstationlatitude",
+      "type": "double",
+      "nullable": true,
+      "metadata": {
+        "name": "endstationlatitude"
+      }
+    },
+    {
+      "name": "endstationlongitude",
+      "type": "double",
+      "nullable": true,
+      "metadata": {
+        "name": "endstationlongitude"
+      }
+    },
+    {
+      "name": "bikeid",
+      "type": "integer",
+      "nullable": true,
+      "metadata": {
+        "name": "bikeid"
+      }
+    },
+    {
+      "name": "usertype",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "name": "usertype"
+      }
+    },
+    {
+      "name": "birthyear",
+      "type": "integer",
+      "nullable": true,
+      "metadata": {
+        "name": "birthyear"
+      }
+    },
+    {
+      "name": "gender",
+      "type": "integer",
+      "nullable": true,
+      "metadata": {
+        "name": "gender"
+      }
+    },
+    {
+      "name" : "Corrupted",
+      "type" : "string",
+      "nullable" : true,
+      "metadata" : {
+        "name" : "Corrupted"
+      }
+    }
+  ]
+}

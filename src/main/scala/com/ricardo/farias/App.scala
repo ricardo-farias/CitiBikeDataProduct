@@ -32,7 +32,12 @@ object App {
         "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory")
       S3FileSystem
     }
+    //fileStorage.listObjects()
 
-    fileStorage.listObjects()
+    val schema = fileStorage.readSchemaFromJson("citibikedataschema.json")(sparkSession.sparkContext)
+    val results = fileStorage.readCsv(schema, "201306-citibike-tripdata.csv")
+    val good = results._1
+    val bad = results._2
+    fileStorage.write("citibiketripdata201306", good)
   }
 }

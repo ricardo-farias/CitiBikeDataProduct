@@ -124,7 +124,9 @@ object S3FileSystem extends FileSystem {
       .options(Map(
         "header"->"true",
         "inferschema"->"true",
-        "dateFormat"-> "MM/dd/yyyy","timestampFormat"->"MM/dd/yyyy hh:mm:ss a")).load(s"${file.getBucketName}/${file.getKey}")
+        "dateFormat"-> "MM/dd/yyyy","timestampFormat"->"MM/dd/yyyy hh:mm:ss a",
+        "ignoreTrailingWhiteSpace"->"true",
+        "ignoreLeadingWhiteSpace"->"true")).load(s"s3a://${file.getBucketName}/${file.getKey}")
     df
   }
 
