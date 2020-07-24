@@ -12,7 +12,7 @@
     {
       "name": "starttime",
       "type": "timestamp",
-      "nullable": false,
+      "nullable": true,
       "metadata": {
         "name": "starttime"
       }

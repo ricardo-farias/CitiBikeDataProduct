@@ -1,4 +1,4 @@
-target/
+target/*
 project/target
 *.class
 .DS_Store
@@ -10,3 +10,4 @@ terraform.tfstate.backup
 EMR-key-pair.pem
 target.zip
 deploy.sh
+
