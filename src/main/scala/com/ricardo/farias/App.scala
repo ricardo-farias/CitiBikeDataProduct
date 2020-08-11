@@ -34,12 +34,13 @@ object App {
     }
     //fileStorage.listObjects()
 
-    //val schema = fileStorage.readSchemaFromJson("citibikedataschema.json")(sparkSession.sparkContext)
-    val good = fileStorage.schemalessReadCsv("201306-citibike-tripdata.csv")
-//    val good = results._1
-//    good.show()
-//    val bad = results._2
-//    bad.show()
+    val schema = fileStorage.readSchemaFromJson("citibikedataschema.json")(sparkSession.sparkContext)
+    val results = fileStorage.readCsv(schema, "201306-citibike-tripdata.csv", "MM/dd/yy hh:mm")
+//    val good = fileStorage.schemalessReadCsv("201306-citibike-tripdata.csv")
+    val good = results._1
+    good.show()
+    val bad = results._2
+    bad.show()
     fileStorage.write("citibiketripdata201306", good)
   }
 }

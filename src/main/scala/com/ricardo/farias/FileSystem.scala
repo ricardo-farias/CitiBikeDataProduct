@@ -15,7 +15,7 @@ import scala.util.Try
 
 abstract class FileSystem {
   def readJson(schema: StructType, filename: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame)
-  def readCsv(schema: StructType, filename: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame)
+  def readCsv(schema: StructType, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame)
   def schemalessReadCsv(filename: String)(implicit sparkSession: SparkSession): DataFrame
   def readSchemaFromJson(filename: String)(implicit sparkContext: SparkContext) : StructType
   def write(filename: String, data: DataFrame)(implicit sparkSession: SparkSession) : Unit
@@ -38,12 +38,12 @@ object LocalFileSystem extends FileSystem {
     (goodDF, badDF)
   }
 
-  override def readCsv(schema: StructType, filename: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
+  override def readCsv(schema: StructType, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
     val df = sparkSession.read.format("csv")
       .options(
         Map(
           "header"-> "true",
-          "dateFormat"-> "MM/dd/yyyy",
+          "timestampFormat"-> timeStampFormat,
           "nullValue"-> "NULL",
           "ignoreTrailingWhiteSpace"->"true",
           "ignoreLeadingWhiteSpace"->"true",
@@ -96,7 +96,7 @@ object S3FileSystem extends FileSystem {
     .withCredentials(cred).build()
   private val bucket = Constants.bucket
 
-  override def readCsv(schema : StructType, filename: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
+  override def readCsv(schema : StructType, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
     val file : S3Object = getObject(filename)
     println(s"s3a://${file.getBucketName}/${file.getKey}")
     val df = sparkSession.read.format("csv")
@@ -104,7 +104,7 @@ object S3FileSystem extends FileSystem {
         Map(
           "header"-> "true",
           "dateFormat"-> "MM/dd/yyyy",
-          "timestampFormat"->"MM/dd/yyyy hh:mm:ss a",
+          "timestampFormat"->timeStampFormat,
           "nullValue"-> "NULL",
           "ignoreTrailingWhiteSpace"->"true",
           "ignoreLeadingWhiteSpace"->"true",
