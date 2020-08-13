@@ -1,0 +1,77 @@
+{
+  "type" : "struct",
+  "fields" : [
+    {
+      "name": "empty_slots",
+      "type": "integer",
+      "nullable": true,
+      "metadata": {
+        "name": "empty_slots"
+      }
+    },
+    {
+      "name": "extra",
+      "type": "object",
+      "nullable": true,
+      "metadata": {
+        "name": "extra"
+      }
+    },
+    {
+      "name": "free_bikes",
+      "type": "object",
+      "nullable": true,
+      "metadata": {
+        "name": "free_bikes"
+      }
+    },
+    {
+      "name": "id",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "name": "id"
+      }
+    },
+    {
+      "name": "latitude",
+      "type": "double",
+      "nullable": true,
+      "metadata": {
+        "name": "latitude"
+      }
+    },
+    {
+      "name": "longitude",
+      "type": "double",
+      "nullable": true,
+      "metadata": {
+        "name": "longitude"
+      }
+    },
+    {
+      "name": "name",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "name": "name"
+      }
+    },
+    {
+      "name": "time",
+      "type": "string",
+      "nullable": true,
+      "metadata": {
+        "name": "time"
+      }
+    },
+    {
+      "name" : "Corrupted",
+      "type" : "string",
+      "nullable" : true,
+      "metadata" : {
+        "name" : "Corrupted"
+      }
+    }
+  ]
+}
