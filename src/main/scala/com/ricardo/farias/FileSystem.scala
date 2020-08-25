@@ -118,17 +118,18 @@ object S3FileSystem extends FileSystem {
   }
 
   override def schemalessReadCsv(filename: String)(implicit sparkSession: SparkSession): DataFrame = {
-    val file : S3Object = getObject(filename)
-    println(s"s3a://${file.getBucketName}/${file.getKey}")
+    //val file : S3Object = getObject(filename)
+    //println(s"s3a://${file.getBucketName}/${file.getKey}")
     val df = sparkSession.read.format("csv")
       .options(Map(
         "header"->"true",
         "inferschema"->"true",
         "dateFormat"-> "MM/dd/yyyy","timestampFormat"->"MM/dd/yyyy hh:mm:ss a",
         "ignoreTrailingWhiteSpace"->"true",
-        "ignoreLeadingWhiteSpace"->"true")).load(s"s3a://${file.getBucketName}/${file.getKey}")
+        "ignoreLeadingWhiteSpace"->"true")).load(s"s3a://citi-bike-data-bucket/*.csv")
     df
   }
+
 
   override def readJson(schema: StructType, filename: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
     val file : S3Object = getObject(filename)
