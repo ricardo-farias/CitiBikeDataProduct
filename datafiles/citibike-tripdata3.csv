@@ -1,0 +1,4 @@
+tripduration,starttime,stoptime,startstationid,startstationname,startstationlatitude,startstationlongitude,endstationid,endstationname,endstationlatitude,endstationlongitude,bikeid,usertype,birthyear,gender
+369,6/1/13 0:03,6/1/13 0:09,509,9 Ave & W 22 St,40.7454973,-74.00197139,521,8 Ave & W 31 St N,40.75096735,-73.99444208,16100,Subscriber,1981,1
+1829,6/1/13 0:03,6/1/13 0:34,265,Stanton St & Chrystie St,40.72229346,-73.99147535,436,Hancock St & Bedford Ave,40.68216564,-73.95399026,15234,Subscriber,1984,1
+829,6/1/13 0:04,6/1/13 0:18,404,9 Ave & W 14 St,40.7405826,-74.00550867,303,Mercer St & Spring St,40.72362738,-73.99949601,16400,Subscriber,1987,1

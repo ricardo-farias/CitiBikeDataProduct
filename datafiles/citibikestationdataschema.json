@@ -1,0 +1,89 @@
+{
+  "type" : "struct",
+  "fields" : [ {
+    "name" : "stations",
+    "type" : {
+      "type" : "array",
+      "elementType" : {
+        "type" : "struct",
+        "fields" : [ {
+          "name" : "empty_slots",
+          "type" : "integer",
+          "nullable" : true,
+          "metadata" : { }
+        }, {
+          "name" : "extra",
+          "type" : {
+            "type" : "struct",
+            "fields" : [ {
+              "name" : "address",
+              "type" : "string",
+              "nullable" : true,
+              "metadata" : { }
+            }, {
+              "name" : "last_updated",
+              "type" : "long",
+              "nullable" : true,
+              "metadata" : { }
+            }, {
+              "name" : "renting",
+              "type" : "integer",
+              "nullable" : true,
+              "metadata" : { }
+            }, {
+              "name" : "returning",
+              "type" : "integer",
+              "nullable" : true,
+              "metadata" : { }
+            }, {
+              "name" : "uid",
+              "type" : "string",
+              "nullable" : true,
+              "metadata" : { }
+            } ]
+          },
+          "nullable" : true,
+          "metadata" : { }
+        }, {
+          "name" : "free_bikes",
+          "type" : "integer",
+          "nullable" : true,
+          "metadata" : { }
+        }, {
+          "name" : "id",
+          "type" : "string",
+          "nullable" : true,
+          "metadata" : { }
+        }, {
+          "name" : "latitude",
+          "type" : "double",
+          "nullable" : true,
+          "metadata" : { }
+        }, {
+          "name" : "longitude",
+          "type" : "double",
+          "nullable" : true,
+          "metadata" : { }
+        }, {
+          "name" : "name",
+          "type" : "string",
+          "nullable" : true,
+          "metadata" : { }
+        }, {
+          "name" : "timestamp",
+          "type" : "timestamp",
+          "nullable" : true,
+          "metadata" : { }
+        } ]
+      },
+      "containsNull" : true
+    },
+    "nullable" : true,
+    "metadata" : { }
+  }, {
+    "name" : "Corrupted",
+    "type" : "string",
+    "nullable" : true,
+    "metadata" : { }
+  } ]
+}

@@ -1,0 +1,3 @@
+tripduration,starttime,stoptime,startstationid,startstationname,startstationlatitude,startstationlongitude,endstationid,endstationname,endstationlatitude,endstationlongitude,bikeid,usertype,birthyear,gender
+695,6/1/13 0:00,6/1/13 0:11,444,Broagfgfgjvjhvjvdway & W 24 St,40.7423543,-73.98915076,434,9 Ave & W 18 St,40.74317449,-74.00366443,19678,Subscriber,1983,1
+693,6/1/13 0:00,6/1/13 0:11,444,Broadhgjyvjhkvkhvjhvjvjvhway & W 24 St,40.7423543,-73.98915076,434,9 Ave & W 18 St,40.74317449,-74.00366443,16649,Subscriber,1984,1

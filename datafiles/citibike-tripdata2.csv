@@ -1,0 +1,3 @@
+tripduration,starttime,stoptime,startstationid,startstationname,startstationlatitude,startstationlongitude,endstationid,endstationname,endstationlatitude,endstationlongitude,bikeid,usertype,birthyear,gender
+2059,6/1/13 0:00,6/1/13 0:35,406,Hicks St & Montague St,40.69512845,-73.99595065,406,Hicks St & Montague St,40.69512845,-73.99595065,19599,Customer,NULL,0
+123,6/1/13 0:01,6/1/13 0:03,475,E 15 St & Irving Pl,40.73524276,-73.98758561,262,Washington Park,40.6917823,-73.9737299,16352,Subscriber,1960,1
