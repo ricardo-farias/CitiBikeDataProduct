@@ -33,27 +33,24 @@ object App {
       S3FileSystem
     }
 
-    val good = fileStorage.schemalessReadCsv("*.csv")
-
-    fileStorage.write("combinedCitibiketripdata201306", good)
-
-
-    val tripSchema = fileStorage.readSchemaFromJson("citibikedataschema.json")(sparkSession.sparkContext)
-    val tripResults = fileStorage.readCsv(tripSchema, "201306-citibike-tripdata.csv", "MM/dd/yy hh:mm")
+    val tripSchema = fileStorage.readSchemaFromJson("raw","citibikedataschema.json")(sparkSession.sparkContext)
+    val tripResults = fileStorage.readCsv(tripSchema, "raw","201306-citibike-tripdata.csv", "MM/dd/yy hh:mm")
     val tripData = tripResults._1
     tripData.show()
     val corruptTripData = tripResults._2
     corruptTripData.show()
-    fileStorage.write("citibiketripdata201306", tripData)
+    fileStorage.write("citibiketripdata201306", tripData, "canonical")
+    fileStorage.write("citibiketripdata201306_err", corruptTripData, "error")
 
-    val stationSchema = fileStorage.readSchemaFromJson("citibikestationdataschema.json")(sparkSession.sparkContext)
-    val stationResults = fileStorage.readJsonForStationData(stationSchema,"201308-citibike-stationdata.json")
+
+    val stationSchema = fileStorage.readSchemaFromJson("raw","citibikestationdataschema.json")(sparkSession.sparkContext)
+    val stationResults = fileStorage.readJsonForStationData(stationSchema,"raw","201308-citibike-stationdata.json")
     val stationData = stationResults._1
     stationData.show()
     val corruptStationData = stationResults._2
     corruptStationData.show()
-    fileStorage.write("citibikestationdata201308", stationData)
+    fileStorage.write("citibikestationdata201308", stationData, "canonical")
+    fileStorage.write("citibikestationdata201308_err", corruptStationData, "error")
 
   }
 }
-
