@@ -114,8 +114,7 @@ object LocalFileSystem extends FileSystem {
 
 object S3FileSystem extends FileSystem {
   private val cred = new ProfileCredentialsProvider("profile sparkapp")
-  private val s3Client = AmazonS3ClientBuilder.standard()
-    .withCredentials(cred).build()
+  private val s3Client = AmazonS3ClientBuilder.standard().withCredentials(cred).build()
   private val bucket = Constants.bucket
 
   override def readCsv(schema : StructType, filePath: String, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {

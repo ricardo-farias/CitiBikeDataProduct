@@ -33,24 +33,25 @@ object App {
       S3FileSystem
     }
 
-    val tripSchema = fileStorage.readSchemaFromJson("raw","citibikedataschema.json")(sparkSession.sparkContext)
-    val tripResults = fileStorage.readCsv(tripSchema, "raw","201306-citibike-tripdata.csv", "MM/dd/yy hh:mm")
+//    This should read from bike-data/raw, not raw, but throws a keyerror if you try
+    val tripSchema = fileStorage.readSchemaFromJson("bike-data/raw","citibikedataschema.json")(sparkSession.sparkContext)
+    val tripResults = fileStorage.readCsv(tripSchema, "bike-data/raw","201306-citibike-tripdata.csv", "MM/dd/yy hh:mm")
     val tripData = tripResults._1
     tripData.show()
     val corruptTripData = tripResults._2
     corruptTripData.show()
-    fileStorage.write("citibiketripdata201306", tripData, "canonical")
-    fileStorage.write("citibiketripdata201306_err", corruptTripData, "error")
+    fileStorage.write("citibiketripdata201306", tripData, "bike-data/canonical")
+    fileStorage.write("citibiketripdata201306_err", corruptTripData, "bike-data/error")
 
 
-    val stationSchema = fileStorage.readSchemaFromJson("raw","citibikestationdataschema.json")(sparkSession.sparkContext)
-    val stationResults = fileStorage.readJsonForStationData(stationSchema,"raw","201308-citibike-stationdata.json")
+    val stationSchema = fileStorage.readSchemaFromJson("bike-data/raw","citibikestationdataschema.json")(sparkSession.sparkContext)
+    val stationResults = fileStorage.readJsonForStationData(stationSchema,"bike-data/raw","201308-citibike-stationdata.json")
     val stationData = stationResults._1
     stationData.show()
     val corruptStationData = stationResults._2
     corruptStationData.show()
-    fileStorage.write("citibikestationdata201308", stationData, "canonical")
-    fileStorage.write("citibikestationdata201308_err", corruptStationData, "error")
+    fileStorage.write("citibikestationdata201308", stationData, "bike-data/canonical")
+    fileStorage.write("citibikestationdata201308_err", corruptStationData, "bike-data/error")
 
   }
 }
