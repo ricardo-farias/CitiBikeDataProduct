@@ -11,12 +11,11 @@ import scala.io.{BufferedSource, Source}
 import scala.util.Try
 
 abstract class FileSystem {
-  def readJson(schema: StructType, filePath: String, filename: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame)
-  def readJsonForStationData(schema: StructType, filePath: String, filename: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame)
-  def readCsv(schema: StructType, filePath: String, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame)
-  def schemalessReadCsv(filePath: String, filename: String)(implicit sparkSession: SparkSession): DataFrame
-  def readSchemaFromJson(filePath: String, filename: String)(implicit sparkContext: SparkContext) : StructType
-  def write(filename: String, data: DataFrame, filePath: String)(implicit sparkSession: SparkSession) : Unit
+  def readJson(schema: StructType, filePath: String, product: String,filename: String, timeStampFormat: String = "MM/dd/yyyy hh:mm:ss a")(implicit sparkSession: SparkSession) : (DataFrame, DataFrame)
+  def readJsonForStationData(schema: StructType, filePath: String, product: String, filename: String, timeStampFormat: String = "MM/dd/yyyy hh:mm:ss a")(implicit sparkSession: SparkSession) : (DataFrame, DataFrame)
+  def readCsv(schema: StructType, filePath: String, product: String, filename: String, timeStampFormat: String = "MM/dd/yyyy hh:mm:ss a")(implicit sparkSession: SparkSession) : (DataFrame, DataFrame)
+  def readSchemaFromJson(filePath: String, product: String, filename: String)(implicit sparkContext: SparkContext) : StructType
+  def write(filePath: String, product: String, filename: String, data: DataFrame)(implicit sparkSession: SparkSession) : Unit
   def listObjects() : Unit
 }
 
@@ -24,19 +23,20 @@ object LocalFileSystem extends FileSystem {
 
   var ROOT_DIRECTORY = Constants.directory
 
-  override def readJson(schema: StructType, filePath: String, filename: String)(implicit sparkSession: SparkSession): (DataFrame, DataFrame) = {
+  override def readJson(schema: StructType, filePath: String, product: String, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession): (DataFrame, DataFrame) = {
     val df = sparkSession.read.options(
       Map("dateFormat"->"MM/dd/yy",
+        "timestampFormat"->timeStampFormat,
         "columnNameOfCorruptRecord"->"Corrupted",
         "nullValues"->"NULL"))
       .schema(schema)
-      .json(f"${ROOT_DIRECTORY}/${filePath}/${filename}")
+      .json(f"${ROOT_DIRECTORY}/${product}/${filePath}/${filename}")
     val badDF = df.filter(df.col("Corrupted").isNotNull).toDF
     val goodDF = df.filter(df.col("Corrupted").isNull).toDF
     (goodDF, badDF)
   }
 
-  override def readJsonForStationData(schema: StructType, filePath: String, filename: String)(implicit sparkSession: SparkSession): (DataFrame, DataFrame) = {
+  override def readJsonForStationData(schema: StructType, filePath: String, product: String, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession): (DataFrame, DataFrame) = {
 
     val flattenedDF = sparkSession.read.options(
       Map("dateFormat"->"MM/dd/yy",
@@ -46,7 +46,7 @@ object LocalFileSystem extends FileSystem {
         "nullValues"->"NULL"
       ))
       .schema(schema)
-      .json(f"${ROOT_DIRECTORY}/${filePath}/${filename}")
+      .json(f"${ROOT_DIRECTORY}/${product}/${filePath}/${filename}")
       .selectExpr("explode(stations) as station_array","*").select("station_array.*","Corrupted")
       .select("extra.*","*").drop("extra").withColumnRenamed("last_updated","last_updated_tmp")
       .selectExpr("from_unixtime(last_updated_tmp) as last_updated","*").drop("last_updated_tmp")
@@ -57,7 +57,7 @@ object LocalFileSystem extends FileSystem {
     (goodDF, badDF)
   }
 
-  override def readCsv(schema: StructType, filePath: String, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
+  override def readCsv(schema: StructType, filePath: String, product: String, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
     val df = sparkSession.read.format("csv")
       .options(
         Map(
@@ -69,24 +69,15 @@ object LocalFileSystem extends FileSystem {
           "columnNameOfCorruptRecord"->"Corrupted"
         ))
       .schema(schema)
-      .load(s"${ROOT_DIRECTORY}/${filePath}/${filename}")
+      .load(s"${ROOT_DIRECTORY}/${product}/${filePath}/${filename}")
 
     val badDF = df.filter(df.col("Corrupted").isNotNull).toDF
     val goodDF = df.filter(df.col("Corrupted").isNull).toDF
     (goodDF, badDF)
   }
 
-  override def schemalessReadCsv(filePath: String, filename: String)(implicit sparkSession: SparkSession): DataFrame = {
-    val df = sparkSession.read.format("csv")
-      .options(Map(
-        "header"->"true",
-        "inferschema"->"true",
-        "dateFormat"-> "MM/dd/yyyy","timestampFormat"->"MM/dd/yyyy hh:mm:ss a")).load(s"${ROOT_DIRECTORY}/${filePath}/${filename}")
-    df
-  }
-
-  override def readSchemaFromJson(filePath: String, filename: String)(implicit sparkContext: SparkContext) : StructType = {
-    val source: BufferedSource = Source.fromFile(s"${ROOT_DIRECTORY}/${filePath}/${filename}")
+  override def readSchemaFromJson(filePath: String, product: String, filename: String)(implicit sparkContext: SparkContext) : StructType = {
+    val source: BufferedSource = Source.fromFile(s"${ROOT_DIRECTORY}/${product}/${filePath}/${filename}")
     val data = source.getLines.toList.mkString("\n")
     source.close()
     val schema  = Try(DataType.fromJson(data)).getOrElse(LegacyTypeStringParser.parse(data)) match {
@@ -98,8 +89,8 @@ object LocalFileSystem extends FileSystem {
 
   def setRootDirectory(directory: String) : Unit = ROOT_DIRECTORY = directory
 
-  override def write(filename: String, data : DataFrame, filePath: String)(implicit sparkSession: SparkSession)  : Unit = {
-    data.write.mode(SaveMode.Overwrite).parquet(f"${ROOT_DIRECTORY}/${filePath}/${filename}.parquet")
+  override def write(filePath: String, product: String, filename: String, data: DataFrame)(implicit sparkSession: SparkSession)  : Unit = {
+    data.write.mode(SaveMode.Overwrite).parquet(f"${ROOT_DIRECTORY}/${product}/${filePath}/${filename}.parquet")
   }
 
   override def listObjects() : Unit = {
@@ -112,7 +103,7 @@ object LocalFileSystem extends FileSystem {
 object S3FileSystem extends FileSystem {
   private val bucket = Constants.bucket
 
-  override def readCsv(schema : StructType, filePath: String, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
+  override def readCsv(schema : StructType, filePath: String, product: String, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
     val df = sparkSession.read.format("csv")
       .options(
         Map(
@@ -125,37 +116,26 @@ object S3FileSystem extends FileSystem {
           "columnNameOfCorruptRecord"->"Corrupted"
         ))
       .schema(schema)
-      .load(s"s3a://${bucket}/${filePath}/${filename}")
+      .load(s"s3a://${bucket}/${product}/${filePath}/${filename}")
     val badDF = df.filter(df.col("Corrupted").isNotNull).toDF
     val goodDF = df.filter(df.col("Corrupted").isNull).toDF
     (goodDF, badDF)
   }
 
-  override def schemalessReadCsv(filePath: String, filename: String)(implicit sparkSession: SparkSession): DataFrame = {
-    val df = sparkSession.read.format("csv")
-      .options(Map(
-        "header"->"true",
-        "inferschema"->"true",
-        "dateFormat"-> "MM/dd/yyyy","timestampFormat"->"MM/dd/yyyy hh:mm:ss a",
-        "ignoreTrailingWhiteSpace"->"true",
-        "ignoreLeadingWhiteSpace"->"true")).load(s"s3a://${bucket}/${filePath}/${filename}")
-    df
-  }
-
-  override def readJson(schema: StructType, filePath: String, filename: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
+  override def readJson(schema: StructType, filePath: String, product: String, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
     val df = sparkSession.read.options(
       Map("dateFormat"->"MM/dd/yy",
-        "timestampFormat"->"yyyy-MM-ssThh:mm:ss.",
+        "timestampFormat"->timeStampFormat,
         "columnNameOfCorruptRecord"->"Corrupted",
         "nullValues"->"NULL"))
       .schema(schema)
-      .json(f"s3a://${Constants.bucket}/${filePath}/${filename}")
+      .json(f"s3a://${Constants.bucket}/${product}//${filePath}/${filename}")
     val badDF = df.filter(df.col("Corrupted").isNotNull).toDF
     val goodDF = df.filter(df.col("Corrupted").isNull).toDF
     (goodDF, badDF)
   }
 
-  override def readJsonForStationData(schema: StructType, filePath: String, filename: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
+  override def readJsonForStationData(schema: StructType, filePath: String, product: String, filename: String, timeStampFormat: String)(implicit sparkSession: SparkSession) : (DataFrame, DataFrame) = {
     val flattenedDF = sparkSession.read.options(
       Map("dateFormat"->"MM/dd/yy",
         "columnNameOfCorruptRecord"->"Corrupted",
@@ -164,7 +144,7 @@ object S3FileSystem extends FileSystem {
         "nullValues"->"NULL"
       ))
       .schema(schema)
-      .json(f"s3a://${bucket}/${filePath}/${filename}")
+      .json(f"s3a://${bucket}/${product}/${filePath}/${filename}")
       .selectExpr("explode(stations) as station_array","*").select("station_array.*","Corrupted")
       .select("extra.*","*").drop("extra").withColumnRenamed("last_updated","last_updated_tmp")
       .selectExpr("from_unixtime(last_updated_tmp) as last_updated","*").drop("last_updated_tmp")
@@ -174,8 +154,8 @@ object S3FileSystem extends FileSystem {
       (goodDF, badDF)
     }
 
-  override def readSchemaFromJson(filePath: String, filename: String)(implicit sparkContext: SparkContext) : StructType = {
-    val source = sparkContext.textFile(f"s3a://${bucket}/${filePath}/${filename}").collect()
+  override def readSchemaFromJson(filePath: String, product: String, filename: String)(implicit sparkContext: SparkContext) : StructType = {
+    val source = sparkContext.textFile(f"s3a://${bucket}/${product}/${filePath}/${filename}").collect()
 
     val data = source.toList.mkString("\n")
     val schema  = Try(DataType.fromJson(data)).getOrElse(LegacyTypeStringParser.parse(data)) match {
@@ -185,7 +165,7 @@ object S3FileSystem extends FileSystem {
     schema
   }
 
-  override def write(filename: String, data: DataFrame, filePath: String)(implicit sparkSession: SparkSession) : Unit = {
+  override def write(filePath: String, product: String, filename: String, data: DataFrame)(implicit sparkSession: SparkSession) : Unit = {
     val name = if (filename.contains("/")) filename.split("/")(1) else filename
     data.createOrReplaceTempView(filename)
     //    sparkSession.sql(s"""CREATE TABLE default.${name}
@@ -196,7 +176,7 @@ object S3FileSystem extends FileSystem {
     //data.write.mode(SaveMode.Overwrite).parquet(f"s3a://${bucket}/${filename}.parquet")
     data.write.format("parquet")
       .mode(SaveMode.Overwrite)
-      .option("path", f"s3a://${bucket}/${filePath}/${filename}.parquet")
+      .option("path", f"s3a://${bucket}/${product}/${filePath}/${filename}.parquet")
       .saveAsTable(s"${Constants.database}.${name}")
   }
 
